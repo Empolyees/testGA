@@ -11,8 +11,12 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <button onClick={() => ReactGA.event({ category: "User", action: "Clicked button" })}>
+                <button onClick={() => ReactGA.event({category: "User", action: "Clicked button"})}>
                     Click me
+                </button>
+
+                <button onClick={() => ReactGA.event({category: "User", action: "Best Button"})}>
+                    Click me, I am better button !!!
                 </button>
             </header>
         </div>
