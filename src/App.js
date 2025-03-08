@@ -12,7 +12,7 @@ function App() {
             ReactGA.initialize("G-K3DDYP9KGG");
             ReactGA.send("pageview");
         } else if (consent === "denied") {
-            ReactGA.initialize("G-K3DDYP9KGG", { anonymizeIp: true });
+            ReactGA.initialize("G-K3DDYP9KGG", { anonymizeIp: true,storage: "none"  });
             ReactGA.send("pageview");
         }
         setCookieConsent(consent);
