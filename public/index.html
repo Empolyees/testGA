@@ -45,14 +45,16 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
 
-    // Výchozí nastavení: cookies se NENAČTOU, dokud uživatel neposkytne souhlas
+    // Výchozí nastavení: žádné cookies, dokud uživatel nedá souhlas
     gtag('consent', 'default', {
       analytics_storage: 'denied',
       ad_storage: 'denied',
+      wait_for_update: 500  // Počká 500ms na souhlas uživatele
     });
 
     gtag('js', new Date());
   </script>
+
 
 
 </html>
