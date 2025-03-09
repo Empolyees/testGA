@@ -23,6 +23,10 @@ button {
   margin-bottom: 10px;
 }
 
+button:hover{
+  background-color: dodgerblue;
+}
+
 .App-link {
   color: #61dafb;
 }
