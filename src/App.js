@@ -27,34 +27,6 @@ function App() {
         });
     }, []);
 
-    useEffect(() => {
-        if (cookieConsent === "granted") {
-            console.log("User granted consent");
-
-            // Uživatel povolil analytiku -> zapnout cookies
-            window.gtag("consent", "update", {
-                analytics_storage: "granted",
-                ad_storage: "granted",
-            });
-
-            ReactGA.initialize(GA_TRACKING_ID);
-            ReactGA.send("pageview");
-        } else if (cookieConsent === "denied") {
-            console.log("User denied consent");
-
-            // Uživatel odmítl -> cookies zůstávají vypnuté
-            window.gtag("consent", "update", {
-                analytics_storage: "denied",
-                ad_storage: "denied",
-            });
-
-            window.gtag("event", "page_view", {
-                anonymize_ip: true,  // IP adresa nebude viditelná
-                non_personalized_ads: true  // Žádné personalizované reklamy
-            });
-        }
-    }, [cookieConsent]);
-
     const handleConsent = (consent) => {
         localStorage.setItem("cookieConsent", consent);
         setCookieConsent(consent);
@@ -96,7 +68,7 @@ function App() {
                             }
                         }}
                     >
-                        Click me, I am better button !!!
+                        Button2
                     </button>
                 </header>
             </div>
