@@ -26,7 +26,14 @@ function App() {
             analytics_storage: 'denied',
             ad_storage: 'denied',
         });
+            gtag("config", GA_TRACKING_ID, {
+                anonymize_ip: true, // Skryje IP adresu
+                storage: "none", // Zakáže ukládání cookies
+                client_id: "anonymous_user_" + Math.random().toString(36).substr(2, 9) // Generuje anonymní ID
+            });
+
         }
+
 
         if (cookieConsent === "granted") {
             ReactGA.send("pageview");
