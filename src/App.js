@@ -32,7 +32,7 @@ function App() {
             ReactGA.send("pageview");
             console.log("granted")
         }
-    }, []);
+    }, [cookieConsent]);
 
     const handleConsent = (consent) => {
         localStorage.setItem("cookieConsent", consent);
