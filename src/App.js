@@ -21,10 +21,17 @@ function App() {
         gtag('js', new Date());
 
         // Výchozí stav = cookies jsou blokovány
+        if(cookieConsent === null || cookieConsent === undefined || cookieConsent === "denied"){
         gtag('consent', 'default', {
             analytics_storage: 'denied',
             ad_storage: 'denied',
         });
+        }
+
+        if (cookieConsent === "granted") {
+            ReactGA.send("pageview");
+            console.log("granted")
+        }
     }, []);
 
     const handleConsent = (consent) => {
