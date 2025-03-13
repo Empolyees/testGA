@@ -9,54 +9,55 @@ function App() {
     const [cookieConsent, setCookieConsent] = useState(() => localStorage.getItem("cookieConsent"));
 
     useEffect(() => {
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
-        document.head.appendChild(script);
+        // ✅ Přidáme Google Analytics skript jen jednou
+        if (!window.gtag) {
+            const script = document.createElement("script");
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+            document.head.appendChild(script);
 
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { window.dataLayer.push(arguments); }
-        window.gtag = gtag;
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { window.dataLayer.push(arguments); }
+            window.gtag = gtag;
 
-        gtag('js', new Date());
-
-        // Výchozí stav = cookies jsou blokovány
-        if(cookieConsent === null || cookieConsent === undefined || cookieConsent === "denied"){
-        gtag('consent', 'default', {
-            analytics_storage: 'denied',
-            ad_storage: 'denied',
-        });
-            gtag("config", GA_TRACKING_ID, {
-                anonymize_ip: true, // Skryje IP adresu
-                storage: "none", // Zakáže ukládání cookies
-                client_id: "anonymous_user_" + Math.random().toString(36).substr(2, 9) // Generuje anonymní ID
-            });
-
+            gtag('js', new Date());
         }
 
+        console.log("✅ GA inicializován, cookieConsent:", cookieConsent);
 
+        // ✅ Odeslat `page_view` + správné nastavení souhlasu
         if (cookieConsent === "granted") {
+            ReactGA.initialize(GA_TRACKING_ID);
             ReactGA.send("pageview");
-            console.log("granted")
-        }else {
-            gtag('consent', 'default', {
+            console.log("✅ Pageview sent with consent");
+
+            window.gtag("config", GA_TRACKING_ID, {
+                page_path: window.location.pathname,
+                anonymize_ip: false, // IP není anonymizována
+            });
+        } else {
+            window.gtag('consent', 'default', {
                 analytics_storage: 'denied',
                 ad_storage: 'denied',
             });
 
-            gtag("config", GA_TRACKING_ID, {
-                anonymize_ip: true,
+            window.gtag("config", GA_TRACKING_ID, {
+                anonymize_ip: true, // IP je anonymizována
                 storage: "none",
                 client_id: "anonymous_" + Math.random().toString(36).substr(2, 9),
                 page_path: window.location.pathname,
             });
+
+            console.log("⚠️ Pageview sent anonymously");
         }
 
+        // ✅ Odesílat `user_engagement` každých 10 sekund
         const interval = setInterval(() => {
-            gtag("event", "user_engagement", {
+            window.gtag("event", "user_engagement", {
                 engagement_time_msec: 10000,
             });
-        }, 10000); // Každých 10 sekund
+            console.log("📊 `user_engagement` sent");
+        }, 10000);
 
         return () => clearInterval(interval);
     }, [cookieConsent]);
@@ -73,24 +74,25 @@ function App() {
         if (consent === "granted") {
             ReactGA.initialize(GA_TRACKING_ID);
             ReactGA.send("pageview");
-            ReactGA.event("user_engagement")
-            window.gtag("config", GA_TRACKING_ID);
+            console.log("✅ Consent granted, sending pageview");
 
-            // ✅ Odeslat uživatelskou interakci
+            window.gtag("config", GA_TRACKING_ID);
             window.gtag("event", "user_engagement", {
-                engagement_time_msec: 10000, // Simulujeme 10 sekund aktivity
+                engagement_time_msec: 10000,
             });
-        }else {
-            // ✅ Pošleme anonymního uživatele do Active Users
+        } else {
+            console.log("⚠️ Consent denied, sending anonymous data");
+
             window.gtag("config", GA_TRACKING_ID, {
                 anonymize_ip: true,
                 storage: "none",
                 client_id: "anonymous_" + Math.random().toString(36).substr(2, 9),
                 page_path: window.location.pathname,
             });
+
             window.gtag("event", "user_engagement", {
                 engagement_time_msec: 10000,
-                non_personalized_ads: true, // Nepersonalizovaná data
+                non_personalized_ads: true,
             });
         }
     };
