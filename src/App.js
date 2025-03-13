@@ -9,7 +9,7 @@ function App() {
     const [cookieConsent, setCookieConsent] = useState(() => localStorage.getItem("cookieConsent"));
 
     useEffect(() => {
-        // ✅ Přidáme Google Analytics skript jen jednou
+        // ✅ Zkontrolujeme, zda je GA už načtený
         if (!window.gtag) {
             const script = document.createElement("script");
             script.async = true;
@@ -23,32 +23,36 @@ function App() {
             gtag('js', new Date());
         }
 
-        console.log("✅ GA inicializován, cookieConsent:", cookieConsent);
+        console.log("✅ GA kontrola při načtení stránky, cookieConsent:", cookieConsent);
 
         // ✅ Odeslat `page_view` + správné nastavení souhlasu
         if (cookieConsent === "granted") {
-            ReactGA.initialize(GA_TRACKING_ID);
+            if (!window.ga_initialized) {  // 🚀 Přidáno, aby se GA neinicializoval opakovaně
+                ReactGA.initialize(GA_TRACKING_ID);
+                window.ga_initialized = true;
+            }
+
             ReactGA.send("pageview");
             console.log("✅ Pageview sent with consent");
 
             window.gtag("config", GA_TRACKING_ID, {
                 page_path: window.location.pathname,
-                anonymize_ip: false, // IP není anonymizována
+                anonymize_ip: false,
             });
-        } else {
+        } else if (cookieConsent === "denied" || cookieConsent === null) {
             window.gtag('consent', 'default', {
                 analytics_storage: 'denied',
                 ad_storage: 'denied',
             });
 
             window.gtag("config", GA_TRACKING_ID, {
-                anonymize_ip: true, // IP je anonymizována
+                anonymize_ip: true,
                 storage: "none",
                 client_id: "anonymous_" + Math.random().toString(36).substr(2, 9),
                 page_path: window.location.pathname,
             });
 
-            console.log("⚠️ Pageview sent anonymously");
+            console.log("⚠️ Pageview sent anonymously after reload");
         }
 
         // ✅ Odesílat `user_engagement` každých 10 sekund
@@ -72,7 +76,11 @@ function App() {
         });
 
         if (consent === "granted") {
-            ReactGA.initialize(GA_TRACKING_ID);
+            if (!window.ga_initialized) {  // 🚀 Zabránění duplikaci inicializace GA
+                ReactGA.initialize(GA_TRACKING_ID);
+                window.ga_initialized = true;
+            }
+
             ReactGA.send("pageview");
             console.log("✅ Consent granted, sending pageview");
 
