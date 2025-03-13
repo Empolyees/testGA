@@ -38,7 +38,27 @@ function App() {
         if (cookieConsent === "granted") {
             ReactGA.send("pageview");
             console.log("granted")
+        }else {
+            gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+            });
+
+            gtag("config", GA_TRACKING_ID, {
+                anonymize_ip: true,
+                storage: "none",
+                client_id: "anonymous_" + Math.random().toString(36).substr(2, 9),
+                page_path: window.location.pathname,
+            });
         }
+
+        const interval = setInterval(() => {
+            gtag("event", "user_engagement", {
+                engagement_time_msec: 10000,
+            });
+        }, 10000); // Každých 10 sekund
+
+        return () => clearInterval(interval);
     }, [cookieConsent]);
 
     const handleConsent = (consent) => {
@@ -53,6 +73,25 @@ function App() {
         if (consent === "granted") {
             ReactGA.initialize(GA_TRACKING_ID);
             ReactGA.send("pageview");
+            ReactGA.event("user_engagement")
+            window.gtag("config", GA_TRACKING_ID);
+
+            // ✅ Odeslat uživatelskou interakci
+            window.gtag("event", "user_engagement", {
+                engagement_time_msec: 10000, // Simulujeme 10 sekund aktivity
+            });
+        }else {
+            // ✅ Pošleme anonymního uživatele do Active Users
+            window.gtag("config", GA_TRACKING_ID, {
+                anonymize_ip: true,
+                storage: "none",
+                client_id: "anonymous_" + Math.random().toString(36).substr(2, 9),
+                page_path: window.location.pathname,
+            });
+            window.gtag("event", "user_engagement", {
+                engagement_time_msec: 10000,
+                non_personalized_ads: true, // Nepersonalizovaná data
+            });
         }
     };
 
